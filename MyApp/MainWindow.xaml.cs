@@ -8,6 +8,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace MyApp
 {
@@ -19,9 +21,9 @@ namespace MyApp
         public MainWindow()
         {
             InitializeComponent();
-           
 
         }
+       
         private void AddEntity_Click(object sender, RoutedEventArgs e)
         {
             AddEntity addEntityWindow = new AddEntity();

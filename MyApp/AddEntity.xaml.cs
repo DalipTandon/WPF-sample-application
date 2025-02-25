@@ -54,10 +54,10 @@ namespace MyApp
             string gender = cmbGender.Text;
             string state = cmbState.Text; // Fixed: Use cmbState instead of txtState
             string city = cmbCity.Text;   // Capture selected city
-            //string stream = txtStream.Text;
+            string stream = txtStream.Text;
             string school = cmbSchool.Text; // Fixed: Use cmbSchool (ComboBox) instead of txtSchool
 
-            MessageBox.Show($"Name: {name}\nGender: {gender}\nState: {state}\nCity: {city}\nSchool: {school}", "Submitted Data");
+            MessageBox.Show($"Name: {name}\nGender: {gender}\nState: {state}\nCity: {city}\nStream: {stream}\nSchool: {school}", "Submitted Data");
 
             this.Close();
         }
