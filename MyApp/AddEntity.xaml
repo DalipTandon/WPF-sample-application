@@ -1,7 +1,7 @@
 ﻿<Window x:Class="MyApp.AddEntity"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Add Entity" SizeToContent="Height"  Width="350"
+        Title="Add Entity" SizeToContent="Height" Width="350"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Background="#F5F5F5">
 
     <Grid Margin="10">
@@ -19,10 +19,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        </Grid.RowDefinitions>
 
         <!-- Name -->
-        <TextBlock Text="Name:" FontSize="14" FontWeight="Bold" Margin="5"/>
+        <TextBlock Text="Name:" Grid.Row="0" FontSize="14" FontWeight="Bold" Margin="5"/>
         <TextBox Name="txtName" Grid.Row="1" Height="30" Margin="5"/>
 
         <!-- Gender -->
@@ -35,25 +35,19 @@
 
         <!-- State -->
         <TextBlock Text="State:" Grid.Row="4" FontSize="14" FontWeight="Bold" Margin="5"/>
-        <ComboBox Name="cmbState" Grid.Row="5" Height="30" Margin="5" SelectionChanged="cmbState_SelectionChanged">
-            <ComboBoxItem Content="Punjab"/>
-            <ComboBoxItem Content="Haryana"/>
-            <ComboBoxItem Content="Delhi"/>
-        </ComboBox>
+        <ComboBox Name="cmbState" Grid.Row="5" Height="30" Margin="5" SelectionChanged="cmbState_SelectionChanged"/>
 
         <!-- City (Initially Hidden) -->
         <TextBlock Text="City:" Grid.Row="6" FontSize="14" FontWeight="Bold" Margin="5" Name="lblCity" Visibility="Collapsed"/>
-        <ComboBox Name="cmbCity" Grid.Row="7" Height="30" Margin="5" Visibility="Collapsed"/>
+        <ComboBox Name="cmbCity" Grid.Row="7" Height="30" Margin="5" Visibility="Collapsed" SelectionChanged="cmbCity_SelectionChanged"/>
 
-        <!-- School -->
-        <TextBlock Text="School:" Grid.Row="8" FontSize="14" FontWeight="Bold" Margin="5"/>
-        <ComboBox Name="cmbSchool" Grid.Row="9" Height="30" Margin="5">
-            <ComboBoxItem Content="School A"/>
-            <ComboBoxItem Content="School B"/>
-            <ComboBoxItem Content="School C"/>
-        </ComboBox>
-        <TextBlock Text="Stream:" Grid.Row="10" FontSize="14" FontWeight="Bold" Margin="5"/>
-        <TextBox Name="txtStream" Grid.Row="11" Height="30" Margin="5"/>
+        <!-- School (Initially Hidden) -->
+        <TextBlock Text="School:" Grid.Row="8" FontSize="14" FontWeight="Bold" Margin="5" Name="lblSchool" Visibility="Collapsed"/>
+        <ComboBox Name="cmbSchool" Grid.Row="9" Height="30" Margin="5" Visibility="Collapsed" SelectionChanged="cmbSchool_SelectionChanged"/>
+
+        <!-- Stream (Initially Hidden) -->
+        <TextBlock Text="Stream:" Grid.Row="10" FontSize="14" FontWeight="Bold" Margin="5" Name="lblStream" Visibility="Collapsed"/>
+        <ComboBox Name="cmbStream" Grid.Row="11" Height="30" Margin="5" Visibility="Collapsed"/>
 
         <!-- Buttons -->
         <StackPanel Grid.Row="12" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">

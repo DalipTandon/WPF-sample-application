@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -7,58 +8,75 @@ namespace MyApp
 {
     public partial class AddEntity : Window
     {
+        private Context _context = new Context();
+
         public AddEntity()
         {
             InitializeComponent();
+            LoadStates();
+        }
+
+        private void LoadStates()
+        {
+            var states = _context.States.ToList();
+            cmbState.ItemsSource = states;
+            cmbState.DisplayMemberPath = "Name";
+            cmbState.SelectedValuePath = "Id";
         }
 
         private void cmbState_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cmbState.SelectedItem == null)
-                return;
+            if (cmbState.SelectedValue == null) return;
+            int selectedStateId = (int)cmbState.SelectedValue;
 
-            string selectedState = (cmbState.SelectedItem as ComboBoxItem).Content.ToString();
+            cmbCity.ItemsSource = _context.Cities.Where(c => c.StateId == selectedStateId).ToList();
+            cmbCity.DisplayMemberPath = "Name";
+            cmbCity.SelectedValuePath = "Id";
+        }
 
-            // Clear previous cities
-            cmbCity.Items.Clear();
+        private void cmbCity_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbCity.SelectedValue == null) return;
+            int selectedCityId = (int)cmbCity.SelectedValue;
 
-            // Dictionary for state-wise cities
-            Dictionary<string, List<string>> stateCities = new Dictionary<string, List<string>>()
-            {
-                { "Punjab", new List<string> { "Amritsar", "Ludhiana", "Jalandhar", "Patiala" } },
-                { "Haryana", new List<string> { "Gurgaon", "Faridabad", "Panipat", "Ambala" } },
-                { "Delhi", new List<string> { "New Delhi", "Dwarka", "Karol Bagh", "Saket" } }
-            };
+            cmbSchool.ItemsSource = _context.Schools.Where(s => s.CityId == selectedCityId).ToList();
+            cmbSchool.DisplayMemberPath = "Name";
+            cmbSchool.SelectedValuePath = "Id";
+        }
 
-            if (stateCities.ContainsKey(selectedState))
-            {
-                foreach (var city in stateCities[selectedState])
-                {
-                    cmbCity.Items.Add(new ComboBoxItem { Content = city });
-                }
+        private void cmbSchool_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbSchool.SelectedValue == null) return;
+            int selectedSchoolId = (int)cmbSchool.SelectedValue;
 
-                // Show city field when a state is selected
-                lblCity.Visibility = Visibility.Visible;
-                cmbCity.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                lblCity.Visibility = Visibility.Collapsed;
-                cmbCity.Visibility = Visibility.Collapsed;
-            }
+            cmbStream.ItemsSource = _context.Streams.Where(st => st.SchoolId == selectedSchoolId).ToList();
+            cmbStream.DisplayMemberPath = "Name";
+            cmbStream.SelectedValuePath = "Id";
         }
 
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
-            string name = txtName.Text;
-            string gender = cmbGender.Text;
-            string state = cmbState.Text; // Fixed: Use cmbState instead of txtState
-            string city = cmbCity.Text;   // Capture selected city
-            string stream = txtStream.Text;
-            string school = cmbSchool.Text; // Fixed: Use cmbSchool (ComboBox) instead of txtSchool
+            if (cmbState.SelectedValue == null || cmbCity.SelectedValue == null ||
+                cmbSchool.SelectedValue == null || cmbStream.SelectedValue == null)
+            {
+                MessageBox.Show("Please select all required fields.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-            MessageBox.Show($"Name: {name}\nGender: {gender}\nState: {state}\nCity: {city}\nStream: {stream}\nSchool: {school}", "Submitted Data");
+            var student = new Student
+            {
+                Name = txtName.Text,
+                Gender = cmbGender.Text,
+                StateId = (int)cmbState.SelectedValue,
+                CityId = (int)cmbCity.SelectedValue,
+                SchoolId = (int)cmbSchool.SelectedValue,
+                StreamId = (int)cmbStream.SelectedValue
+            };
 
+            _context.Students.Add(student);
+            _context.SaveChanges();
+
+            MessageBox.Show("Student added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             this.Close();
         }
 

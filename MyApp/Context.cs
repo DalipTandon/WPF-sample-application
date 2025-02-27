@@ -1,19 +1,14 @@
 ﻿using System.Data.Entity;
-using System.IO;
 using System.Data.Entity.Migrations;
-using MyApp.Migrations;  // Ensure this is present
 
 namespace MyApp
 {
     public class Context : DbContext
     {
-        public Context() : base("name=DefaultConnection") { }
-
-        static Context()
+        public Context() : base("name=DefaultConnection")
         {
-            Database.SetInitializer(new MigrateDatabaseToLatestVersion<Context, Configuration>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<Context, MyApp.Migrations.Configuration>());
         }
-
 
         public DbSet<UserAuth> Users { get; set; }
         public DbSet<Student> Students { get; set; }
@@ -21,17 +16,17 @@ namespace MyApp
         public DbSet<City> Cities { get; set; }
         public DbSet<School> Schools { get; set; }
         public DbSet<Stream> Streams { get; set; }
+   
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            // 🔹 Student Foreign Keys
             modelBuilder.Entity<Student>()
                 .HasRequired(s => s.State)
                 .WithMany()
                 .HasForeignKey(s => s.StateId)
                 .WillCascadeOnDelete(false);
 
-            modelBuilder.Entity<Student>()
+            modelBuilder.Entity<School>()
                 .HasRequired(s => s.City)
                 .WithMany()
                 .HasForeignKey(s => s.CityId)
@@ -49,7 +44,6 @@ namespace MyApp
                 .HasForeignKey(s => s.StreamId)
                 .WillCascadeOnDelete(false);
 
-            // 🔹 Stream Foreign Key
             modelBuilder.Entity<Stream>()
                 .HasRequired(s => s.School)
                 .WithMany(sch => sch.Streams)
@@ -57,14 +51,6 @@ namespace MyApp
                 .WillCascadeOnDelete(false);
 
             base.OnModelCreating(modelBuilder);
-        }
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                this.Database.Connection.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }
