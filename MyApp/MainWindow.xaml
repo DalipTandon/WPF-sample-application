@@ -44,6 +44,7 @@
                 <DataGridTextColumn Header="City" Binding="{Binding City.Name}" Width="120"/>
                 <DataGridTextColumn Header="School" Binding="{Binding School.Name}" Width="120"/>
                 <DataGridTextColumn Header="Stream" Binding="{Binding Stream.Name}" Width="120"/>
+               
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

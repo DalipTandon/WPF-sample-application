@@ -22,6 +22,12 @@ namespace MyApp
             cmbState.ItemsSource = states;
             cmbState.DisplayMemberPath = "Name";
             cmbState.SelectedValuePath = "Id";
+
+            // Initially, hide City and Stream dropdowns
+            lblCity.Visibility = Visibility.Collapsed;
+            cmbCity.Visibility = Visibility.Collapsed;
+            lblStream.Visibility = Visibility.Collapsed;
+            cmbStream.Visibility = Visibility.Collapsed;
         }
 
         private void cmbState_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -32,6 +38,10 @@ namespace MyApp
             cmbCity.ItemsSource = _context.Cities.Where(c => c.StateId == selectedStateId).ToList();
             cmbCity.DisplayMemberPath = "Name";
             cmbCity.SelectedValuePath = "Id";
+
+            // Show City dropdown when a state is selected
+            lblCity.Visibility = Visibility.Visible;
+            cmbCity.Visibility = Visibility.Visible;
         }
 
         private void cmbCity_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -52,6 +62,10 @@ namespace MyApp
             cmbStream.ItemsSource = _context.Streams.Where(st => st.SchoolId == selectedSchoolId).ToList();
             cmbStream.DisplayMemberPath = "Name";
             cmbStream.SelectedValuePath = "Id";
+
+            // Show Stream dropdown when a school is selected
+            lblStream.Visibility = Visibility.Visible;
+            cmbStream.Visibility = Visibility.Visible;
         }
 
         private void Submit_Click(object sender, RoutedEventArgs e)
