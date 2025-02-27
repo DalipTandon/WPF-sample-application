@@ -23,7 +23,6 @@ namespace MyApp
             cmbState.DisplayMemberPath = "Name";
             cmbState.SelectedValuePath = "Id";
 
-            // Initially, hide City and Stream dropdowns
             lblCity.Visibility = Visibility.Collapsed;
             cmbCity.Visibility = Visibility.Collapsed;
             lblStream.Visibility = Visibility.Collapsed;
