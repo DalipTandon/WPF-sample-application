@@ -19,6 +19,8 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Name -->
@@ -49,8 +51,14 @@
         <TextBlock Text="Stream:" Grid.Row="10" FontSize="14" FontWeight="Bold" Margin="5" Name="lblStream" Visibility="Collapsed"/>
         <ComboBox Name="cmbStream" Grid.Row="11" Height="30" Margin="5" Visibility="Collapsed"/>
 
+        <TextBlock Text="Profile Image:" Grid.Row="12" FontSize="14" FontWeight="Bold" Margin="5"/>
+        <StackPanel Grid.Row="13" Orientation="Horizontal" Margin="5">
+            <TextBox Name="txtImagePath" Width="200" IsReadOnly="True" Margin="0,0,5,0"/>
+            <Button Content="Browse" Width="100" Click="BrowseImage_Click"/>
+        </StackPanel>
+        
         <!-- Buttons -->
-        <StackPanel Grid.Row="12" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+        <StackPanel Grid.Row="14" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
             <Button Content="Submit" Width="100" Height="35" Click="Submit_Click" Background="Green" Foreground="White"/>
             <Button Content="Cancel" Width="100" Height="35" Click="Cancel_Click" Background="Gray" Foreground="White" Margin="10,0,0,0"/>
         </StackPanel>

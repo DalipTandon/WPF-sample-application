@@ -84,6 +84,7 @@ namespace MyApp
             editWindow.ShowDialog(); // Open as modal dialog
 
             // Refresh DataGrid after editing
+            _context.SaveChanges();
             LoadStudentData();
         }
 

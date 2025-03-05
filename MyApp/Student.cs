@@ -38,5 +38,6 @@ namespace MyApp
         [ForeignKey("Stream")]
         public int StreamId { get; set; }
         public virtual Stream Stream { get; set; }
+        public string ImagePath { get; set; }
     }
 }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,7 +17,7 @@ namespace MyApp
             InitializeComponent();
             LoadStates();
         }
-
+        
         private void LoadStates()
         {
             var states = _context.States.ToList();
@@ -66,6 +68,34 @@ namespace MyApp
             lblStream.Visibility = Visibility.Visible;
             cmbStream.Visibility = Visibility.Visible;
         }
+        private string SaveImageToFolder(string sourceFilePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(sourceFilePath) || !File.Exists(sourceFilePath))
+                {
+                    throw new FileNotFoundException("Selected image file not found.");
+                }
+
+                string appFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
+                if (!Directory.Exists(appFolderPath))
+                {
+                    Directory.CreateDirectory(appFolderPath);
+                }
+
+                string fileName = $"{Guid.NewGuid()}{Path.GetExtension(sourceFilePath)}";
+                string destinationPath = Path.Combine(appFolderPath, fileName);
+
+                File.Copy(sourceFilePath, destinationPath, true);
+                return destinationPath;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving image: {ex.Message}", "Image Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+        }
+
 
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
@@ -75,6 +105,8 @@ namespace MyApp
                 MessageBox.Show("Please select all required fields.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            string selectedImagePath = txtImagePath.Text; // Get file path from TextBox
+            string savedImagePath = SaveImageToFolder(selectedImagePath); // Save image and get new path
 
             var student = new Student
             {
@@ -83,7 +115,8 @@ namespace MyApp
                 StateId = (int)cmbState.SelectedValue,
                 CityId = (int)cmbCity.SelectedValue,
                 SchoolId = (int)cmbSchool.SelectedValue,
-                StreamId = (int)cmbStream.SelectedValue
+                StreamId = (int)cmbStream.SelectedValue,
+                ImagePath = savedImagePath
             };
 
             _context.Students.Add(student);
@@ -96,6 +129,20 @@ namespace MyApp
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void BrowseImage_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp",
+                Title = "Select an Image"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                txtImagePath.Text = openFileDialog.FileName; // Display file path in TextBox
+            }
         }
     }
 }
