@@ -11,6 +11,7 @@ using System.Windows.Shapes;
 using System.Data.SqlClient;
 using System.Data;
 using System.Data.Entity;
+using System.IO;
 
 namespace MyApp
 {
@@ -59,6 +60,7 @@ namespace MyApp
                     .Include(s => s.City)
                     .Include(s => s.School)
                     .Include(s => s.Stream)
+                    //.Include(s => s.Address)
                     .ToList();
 
                 StudentDataGrid.ItemsSource = students;
@@ -69,24 +71,48 @@ namespace MyApp
             }
         }
 
-        private void EditStudent_Click(object sender, RoutedEventArgs e)
-        {
+        //private void EditStudent_Click(object sender, RoutedEventArgs e)
+        //{
            
-            var button = sender as Button;
-            if (button == null) return;
+        //    var button = sender as Button;
+        //    if (button == null) return;
 
-            var student = (button.DataContext as Student);
-            if (student == null) return;
+        //    var student = (button.DataContext as Student);
+        //    if (student == null) return;
 
-            // Open Edit Window
-            EditEntity editWindow = new EditEntity(student);
-            editWindow.Owner = this; // Set MainWindow as owner
-            editWindow.ShowDialog(); // Open as modal dialog
+        //    // Open Edit Window
+        //    EditEntity editWindow = new EditEntity(student);
+        //    editWindow.Owner = this; // Set MainWindow as owner
+        //    editWindow.ShowDialog(); // Open as modal dialog
 
-            // Refresh DataGrid after editing
-            _context.SaveChanges();
-            LoadStudentData();
+        //    // Refresh DataGrid after editing
+        //    _context.SaveChanges();
+        //    LoadStudentData();
+        //}
+
+
+       private bool DeleteImageFromFolder(string imagePath)
+{
+    try
+    {
+        if (File.Exists(imagePath))
+        {
+            // ✅ Release the file lock by reloading the image with a new stream
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            File.Delete(imagePath);
+            return true;
         }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"File deletion error: {ex.Message}", "File Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+    return false;
+}
+
+
 
 
         private void DeleteStudent_Click(object sender, RoutedEventArgs e)
@@ -110,6 +136,18 @@ namespace MyApp
             {
                 try
                 {
+                    // Delete image if it exists
+                    if (!string.IsNullOrEmpty(student.ImagePath))
+                    {
+                        bool isDeleted = DeleteImageFromFolder(student.ImagePath);
+                        if (!isDeleted)
+                        {
+                            MessageBox.Show("Failed to delete student image, but the record will still be deleted.",
+                                            "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                    }
+
+                    // Remove student from database
                     _context.Students.Remove(student);
                     _context.SaveChanges();
 
@@ -123,6 +161,28 @@ namespace MyApp
                     MessageBox.Show($"Error deleting student: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void StudentDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (StudentDataGrid.SelectedItem is Student student)
+            {
+                OpenEditWindow(student);
+            }
+        }
+
+        private void OpenEditWindow(Student student)
+        {
+            if (student == null) return;
+
+            // Open Edit Window
+            EditEntity editWindow = new EditEntity(student);
+            editWindow.Owner = this; // Set MainWindow as owner
+            editWindow.ShowDialog(); // Open as modal dialog
+
+            // Refresh DataGrid after editing
+            _context.SaveChanges();
+            LoadStudentData();
         }
 
 
