@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Context.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="images.ico" />
   </ItemGroup>
 
@@ -23,10 +27,16 @@
 
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WebApp.Database\WebApp.Database.csproj" />
+    <ProjectReference Include="..\WebApp.Models\WebApp.Models.csproj" />
   </ItemGroup>
 
 </Project>

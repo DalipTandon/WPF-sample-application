@@ -9,6 +9,7 @@
         WindowStartupLocation="CenterScreen" Background="White"
         WindowState="Maximized"
         SizeToContent="Manual">
+    
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="LightSteelBlue" Padding="15" Cursor="Arrow" FontSize="14">
             <MenuItem Header="FILE">
@@ -58,10 +59,12 @@
                 <DataGridTemplateColumn Header="Photo" Width="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding ImagePath}" Height="50" Width="50" Stretch="UniformToFill" />
+                            <Image Name="StudentImage" Source="{Binding StudentImageSource}" Height="50" Width="50" Stretch="UniformToFill"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+
+
 
                 <!-- Edit and Delete Buttons -->
                 <DataGridTemplateColumn  Width="150" >

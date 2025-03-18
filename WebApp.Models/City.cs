@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MyApp;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApp.Models;
 
-namespace MyApp
+namespace WebApp.Models
 {
     public class City
     {

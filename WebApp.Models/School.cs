@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
+using WebApp.Models;
+using Stream = WebApp.Models.Stream;
 
 namespace MyApp
 {
-    public class Stream
+    public class School
     {
         [Key]
         public int Id { get; set; }
@@ -14,10 +17,12 @@ namespace MyApp
         public string Name { get; set; }
 
         [Required]
-        [ForeignKey("School")]
-        public int SchoolId { get; set; }
-        public virtual School School { get; set; }
+        [ForeignKey("City")]
+        public int CityId { get; set; }
 
+        public virtual City City { get; set; }
+
+        public virtual ICollection<Stream> Streams { get; set; } = new HashSet<Stream>();
         public virtual ICollection<Student> Students { get; set; } = new HashSet<Student>();
     }
 }

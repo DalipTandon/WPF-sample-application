@@ -3,14 +3,18 @@ using System.Windows;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using WebApp.Database;
 
 namespace MyApp
 {
     public partial class Login : Window
     {
+        private readonly DataContext _context;
+
         public Login()
         {
             InitializeComponent();
+            _context = new DataContext();
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
@@ -18,23 +22,26 @@ namespace MyApp
             string email = txtEmail.Text.Trim();
             string password = txtPassword.Password.Trim();
 
-            using (var context = new Context())
+            if (!IsValidEmail(email))
             {
-                var user = context.Users.FirstOrDefault(u => u.Email == email);
-
-                if (user != null && VerifyPassword(password, user.Password))
-                {
-                    //MessageBox.Show("Login successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    MainWindow mainWindow = new MainWindow();
-                    mainWindow.Show();
-                    this.Close();
-                }
-                else
-                {
-                    MessageBox.Show("Invalid email or password!", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show("Invalid email format.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+            {
+                MessageBox.Show("User not found. Please check your email and try again.", "Login Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+
+            MessageBox.Show("Login successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Proceed to the next window
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+            this.Close();
         }
 
         private bool VerifyPassword(string enteredPassword, string storedHash)
@@ -47,43 +54,23 @@ namespace MyApp
             string email = txtEmail.Text.Trim();
             string password = txtPassword.Password.Trim();
 
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-            {
-                MessageBox.Show("Email and Password are required.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             if (!IsValidEmail(email))
             {
-                MessageBox.Show("Invalid email format.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Invalid email format.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            using (var db = new Context())
+            if (_context.Users.Any(u => u.Email == email))
             {
-                if (db.Users.Any(u => u.Email == email))
-                {
-                    MessageBox.Show("Email already exists. Please use another email.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                string hashedPassword = HashPassword(password);
-
-                var newUser = new UserAuth
-                {
-                    Email = email,
-                    Password = hashedPassword
-                };
-
-                db.Users.Add(newUser);
-                db.SaveChanges();
-
-                MessageBox.Show("Signup successful! Please log in.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Clear fields
-                txtEmail.Clear();
-                txtPassword.Clear();
+                MessageBox.Show("Email already registered.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            string hashedPassword = HashPassword(password);
+            _context.Users.Add(new UserAuth{ Email = email, Password = hashedPassword });
+            _context.SaveChanges();
+
+            MessageBox.Show("Signup successful! Please log in.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private string HashPassword(string password)

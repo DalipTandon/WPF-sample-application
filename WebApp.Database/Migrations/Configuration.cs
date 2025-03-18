@@ -1,11 +1,13 @@
-﻿using System;
+﻿using MyApp;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity.Migrations;
 using System.Linq;
+using WebApp.Models;
 
-namespace MyApp.Migrations
+namespace WebApp.Database.Migrations
 {
-    internal sealed class Configuration : DbMigrationsConfiguration<MyApp.Context>
+    internal sealed class Configuration : DbMigrationsConfiguration<WebApp.Database.DataContext>
     {
         public Configuration()
         {
@@ -13,7 +15,7 @@ namespace MyApp.Migrations
             AutomaticMigrationDataLossAllowed = true; // Allow data loss in dev mode (be careful)
         }
 
-        protected override void Seed(MyApp.Context context)
+        protected override void Seed(WebApp.Database.DataContext context)
         {
             // Seed States
             var states = new List<State>

@@ -5,12 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using WebApp.Database;
+using WebApp.Models;
 
 namespace MyApp
 {
     public partial class AddEntity : Window
     {
-        private Context _context = new Context();
+        private readonly DataContext _context = new DataContext();
+
 
         public AddEntity()
         {
@@ -78,7 +82,7 @@ namespace MyApp
         private void LoadStreams(int schoolId)
         {
             var streams = _context.Streams.Where(st => st.SchoolId == schoolId).ToList();
-            streams.Insert(0, new Stream { Id = 0, Name = "Select Stream" });
+            streams.Insert(0, new WebApp.Models.Stream { Id = 0, Name = "Select Stream" });
 
             cmbStream.ItemsSource = streams;
             cmbStream.DisplayMemberPath = "Name";
@@ -127,20 +131,32 @@ namespace MyApp
                     Directory.CreateDirectory(appFolderPath);
                 }
 
-                string fileName = $"{Guid.NewGuid()}{Path.GetExtension(sourceFilePath)}";
+                // Get the actual filename from the source path
+                string fileName = Path.GetFileName(sourceFilePath);
                 string destinationPath = Path.Combine(appFolderPath, fileName);
 
-                File.Copy(sourceFilePath, destinationPath, true);
+                // Ensure the filename is unique by appending a number if needed
+                string newDestinationPath = destinationPath;
+                while (File.Exists(newDestinationPath))
+                {
+                    string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                    string extension = Path.GetExtension(fileName);
+                    newDestinationPath = Path.Combine(appFolderPath, $"{fileNameWithoutExt} {extension}");
+                   
+                }
 
-                return destinationPath;
+                File.Copy(sourceFilePath, newDestinationPath, true);
+
+                return newDestinationPath;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error saving image: {ex.Message}", "Image Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
+                return "";
             }
         }
-     
+
+
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
             if (cmbState.SelectedValue is int stateId && stateId == 0 ||
@@ -164,7 +180,7 @@ namespace MyApp
                 CityId = (int)cmbCity.SelectedValue,
                 SchoolId = (int)cmbSchool.SelectedValue,
                 StreamId = (int)cmbStream.SelectedValue,
-                Address= txtAddress.Text,
+                Address = txtAddress.Text,
                 ImagePath = savedImagePath
             };
 
@@ -186,8 +202,11 @@ namespace MyApp
             if (openFileDialog.ShowDialog() == true)
             {
                 txtImagePath.Text = openFileDialog.FileName;
+
+                imgProfile.Source = new BitmapImage(new Uri(openFileDialog.FileName));
             }
         }
+
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {

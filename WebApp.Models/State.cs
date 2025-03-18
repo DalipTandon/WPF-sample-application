@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MyApp;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace MyApp
+namespace WebApp.Models
 {
     public class State
     {

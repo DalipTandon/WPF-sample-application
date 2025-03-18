@@ -36,7 +36,7 @@
                 <StackPanel Grid.Row="1" Margin="10,10,10,10">
                     <TextBlock Text="Email" Foreground="#555" FontSize="14" FontWeight="SemiBold"/>
                     <Border CornerRadius="8" BorderBrush="#999" BorderThickness="1" Background="White">
-                        <TextBox Name="txtEmail" Height="50" Background="Transparent" Padding="2" BorderThickness="0" TextChanged="txtEmail_TextChanged"/>
+                        <TextBox Text="demo1@thinkexam.com" Name="txtEmail" Height="50" Background="Transparent" Padding="2" BorderThickness="0" TextChanged="txtEmail_TextChanged"/>
                     </Border>
                 </StackPanel>
 
