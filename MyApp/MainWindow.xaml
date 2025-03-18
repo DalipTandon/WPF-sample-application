@@ -33,6 +33,10 @@
             </MenuItem>
             <MenuItem Header="ADD" Click="AddEntity_Click"/>
             <MenuItem Header="VIEW"/>
+           
+                <MenuItem Header="Import" Click="Import_Click"/>
+                <MenuItem Header="Export" Click="Export_Click"/>
+           
             <Button x:Name="Logout" Content="Logout" Height="25" Width="61" Click="Logout_Click"/>
         </Menu>
 

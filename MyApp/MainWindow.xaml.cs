@@ -18,6 +18,9 @@ using WebApp.Models;
 using System.Xml.Linq;
 using WebApp.Database;
 using Microsoft.VisualBasic;
+using ClosedXML.Excel;
+using ExcelDataReader;
+using Microsoft.Win32;
 //using Microsoft.EntityFrameworkCore;
 
 namespace MyApp
@@ -28,6 +31,7 @@ namespace MyApp
 
         
         private readonly DataContext _context =new DataContext();
+        private DataTable studentTable = new DataTable(); // Holds imported data
 
 
         public MainWindow()
@@ -168,5 +172,138 @@ namespace MyApp
             //_context.SaveChanges();
             //LoadStudentData();
         }
+
+        private void Import_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Excel Files|*.xls;*.xlsx",
+                Title = "Select an Excel File"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                LoadExcelData(openFileDialog.FileName);
+            }
+        }
+
+        private void LoadExcelData(string filePath)
+        {
+            try
+            {
+                using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    {
+                        var result = reader.AsDataSet(new ExcelDataSetConfiguration()
+                        {
+                            ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
+                            {
+                                UseHeaderRow = true
+                            }
+                        });
+
+                        if (result.Tables.Count > 0)
+                        {
+                            studentTable = result.Tables[0]; // Store data in memory
+                            StudentDataGrid.ItemsSource = studentTable.DefaultView; // Display in DataGrid
+                        }
+                        else
+                        {
+                            MessageBox.Show("No data found in the Excel file.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading Excel file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // EXPORT: Generate Excel file from DataGrid
+        private void Export_Click(object sender, RoutedEventArgs e)
+         {
+            if (StudentDataGrid.ItemsSource == null)
+            {
+                MessageBox.Show("No data to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Excel Files|*.xlsx",
+                Title = "Save as Excel File"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string filePath = saveFileDialog.FileName;
+                SaveDataGridToExcel(filePath);
+            }
+        }
+
+        private void SaveDataGridToExcel(string filePath)
+        {
+            try
+            {
+                // Convert DataGrid ItemsSource (List<Student>) to DataTable
+                if (StudentDataGrid.ItemsSource is List<Student> studentList)
+                {
+                    DataTable dt = ConvertToDataTable(studentList);
+
+                    using (XLWorkbook wb = new XLWorkbook())
+                    {
+                        wb.Worksheets.Add(dt, "Students");
+                        wb.SaveAs(filePath);
+                    }
+
+                    MessageBox.Show("Data exported successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("No data to export.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error exporting data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private DataTable ConvertToDataTable(List<Student> students)
+        {
+            DataTable table = new DataTable("Students");
+
+            // Define Columns
+            table.Columns.Add("ID", typeof(int));
+            table.Columns.Add("Name", typeof(string));
+            table.Columns.Add("Gender", typeof(string));
+            table.Columns.Add("State", typeof(string));
+            table.Columns.Add("City", typeof(string));
+            table.Columns.Add("School", typeof(string));
+            table.Columns.Add("Stream", typeof(string));
+            table.Columns.Add("Address", typeof(string));
+            table.Columns.Add("ImagePath", typeof(string));
+
+            // Fill Rows
+            foreach (var student in students)
+            {
+                table.Rows.Add(
+                    student.Id,
+                    student.Name,
+                    student.Gender,
+                    student.State?.Name,  
+                    student.City?.Name,  
+                    student.School?.Name, 
+                    student.Stream?.Name, // Get Stream Name instead of ID
+                    student.Address,
+                    student.ImagePath
+                );
+            }
+
+            return table;
+        }
+
     }
 }
