@@ -119,7 +119,7 @@ namespace MyApp
             {
                 // Update student details
                 _student.Name = txtName.Text;
-                 _student.Gender = cmbGender.Text;
+                _student.Gender = cmbGender.Text;
                 _student.StateId = (int)cmbState.SelectedValue;
                 _student.CityId = (int)cmbCity.SelectedValue;
                 _student.SchoolId = (int)cmbSchool.SelectedValue;
@@ -157,9 +157,9 @@ namespace MyApp
                     _student.ImagePath = existingImagePath;
                 }
 
-              
+                // Save changes
                 _context.SaveChanges();
-              // LoadStudentData();
+               LoadStudentData();
                 MessageBox.Show("Student updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                // LoadStudentData();
                 this.Close();

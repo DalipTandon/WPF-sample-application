@@ -38,6 +38,7 @@ namespace MyApp
         {
             InitializeComponent();
             LoadStudentData();
+            LoadStudentsFromDatabase();
         }
 
         private void AddEntity_Click(object sender, RoutedEventArgs e)
@@ -191,6 +192,8 @@ namespace MyApp
         {
             try
             {
+                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance); // Required for ExcelDataReader
+
                 using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
                 {
                     using (var reader = ExcelReaderFactory.CreateReader(stream))
@@ -199,14 +202,27 @@ namespace MyApp
                         {
                             ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
                             {
-                                UseHeaderRow = true
+                                UseHeaderRow = true // Read the first row as column headers
                             }
                         });
 
                         if (result.Tables.Count > 0)
                         {
-                            studentTable = result.Tables[0]; // Store data in memory
-                            StudentDataGrid.ItemsSource = studentTable.DefaultView; // Display in DataGrid
+                            DataTable studentTable = result.Tables[0]; // Read the first sheet
+                            List<Student> newStudents = ConvertDataTableToStudents(studentTable); // Convert to List
+
+                            if (newStudents.Count > 0)
+                            {
+                                // Display data in DataGrid without saving to the database
+                                StudentDataGrid.ItemsSource = null; // Reset binding
+                                StudentDataGrid.ItemsSource = newStudents; // Show imported data
+
+                                MessageBox.Show($"{newStudents.Count} students loaded successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            else
+                            {
+                                MessageBox.Show("No valid student data found in the Excel file.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
                         }
                         else
                         {
@@ -220,6 +236,25 @@ namespace MyApp
                 MessageBox.Show($"Error reading Excel file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
+        private void LoadStudentsFromDatabase()
+        {
+            using (var dbContext = new DataContext()) // Replace with your actual DbContext
+            {
+                var students = dbContext.Students
+                    .Include(s => s.State)
+                    .Include(s => s.City)
+                    .Include(s => s.School)
+                    .Include(s => s.Stream)
+                    .ToList();
+
+                StudentDataGrid.ItemsSource = null;  // Reset binding
+                StudentDataGrid.ItemsSource = students; // Load saved students
+            }
+        }
+
+
 
         // EXPORT: Generate Excel file from DataGrid
         private void Export_Click(object sender, RoutedEventArgs e)
@@ -270,6 +305,31 @@ namespace MyApp
                 MessageBox.Show($"Error exporting data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        private List<Student> ConvertDataTableToStudents(DataTable dt)
+        {
+            List<Student> students = new List<Student>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                Student student = new Student()
+                {
+                    Id = row.Table.Columns.Contains("ID") && int.TryParse(row["ID"].ToString(), out int id) ? id : 0,
+                    Name = row["Name"].ToString(),
+                    Gender = row["Gender"].ToString(),
+                    State = new State { Name = row["State"].ToString() },
+                    City = new City { Name = row["City"].ToString() },
+                    School = new School { Name = row["School"].ToString() },
+                    Stream = new WebApp.Models.Stream { Name = row["Stream"].ToString() },
+                    Address = row["Address"].ToString(),
+                    ImagePath = row["ImagePath"].ToString()
+                };
+
+                students.Add(student);
+            }
+
+            return students;
+        }
+
 
         private DataTable ConvertToDataTable(List<Student> students)
         {
@@ -296,7 +356,7 @@ namespace MyApp
                     student.State?.Name,  
                     student.City?.Name,  
                     student.School?.Name, 
-                    student.Stream?.Name, // Get Stream Name instead of ID
+                    student.Stream?.Name, 
                     student.Address,
                     student.ImagePath
                 );
@@ -304,6 +364,34 @@ namespace MyApp
 
             return table;
         }
+
+        private void SaveToDatabase_Click(object sender, RoutedEventArgs e)
+{
+    if (StudentDataGrid.ItemsSource is List<Student> students && students.Count > 0)
+    {
+        using (var dbContext = new DataContext()) // Replace with your actual DbContext
+        {
+            foreach (var student in students)
+            {
+                // Ensure related entities exist in the database before adding new ones
+                student.State = dbContext.States.FirstOrDefault(s => s.Name == student.State.Name) ?? student.State;
+                student.City = dbContext.Cities.FirstOrDefault(c => c.Name == student.City.Name) ?? student.City;
+                student.School = dbContext.Schools.FirstOrDefault(s => s.Name == student.School.Name) ?? student.School;
+                student.Stream = dbContext.Streams.FirstOrDefault(st => st.Name == student.Stream.Name) ?? student.Stream;
+            }
+
+            dbContext.Students.AddRange(students);
+            dbContext.SaveChanges();
+        }
+
+        MessageBox.Show("Students saved to the database successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+    else
+    {
+        MessageBox.Show("No data to save!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+}
+
 
     }
 }

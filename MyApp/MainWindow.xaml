@@ -34,9 +34,10 @@
             <MenuItem Header="ADD" Click="AddEntity_Click"/>
             <MenuItem Header="VIEW"/>
            
-                <MenuItem Header="Import" Click="Import_Click"/>
-                <MenuItem Header="Export" Click="Export_Click"/>
-           
+                <MenuItem Header="IMPORT" Click="Import_Click"/>
+                <MenuItem Header="EXPORT" Click="Export_Click"/>
+            <Button Content="Save Data" Click="SaveToDatabase_Click" />
+
             <Button x:Name="Logout" Content="Logout" Height="25" Width="61" Click="Logout_Click"/>
         </Menu>
 
